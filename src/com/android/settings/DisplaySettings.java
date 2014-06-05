@@ -61,6 +61,8 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
     private static final String KEY_FONT_SIZE = "font_size";
     private static final String KEY_NOTIFICATION_PULSE = "notification_pulse";
     private static final String KEY_SCREEN_SAVER = "screensaver";
+    private static final String KEY_NAV_BUTTONS_EDIT = "nav_buttons_edit";
+    private static final String KEY_NAV_BUTTONS_HEIGHT = "nav_buttons_height";
     private static final String KEY_PEEK = "notification_peek";
 
     private static final String PEEK_APPLICATION = "com.jedga.peek";
@@ -73,6 +75,8 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
     private PreferenceScreen mNotificationPulse;
 
     private final Configuration mCurConfig = new Configuration();
+
+    private ListPreference mNavButtonsHeight;
     
     private ListPreference mScreenTimeoutPreference;
     private Preference mScreenSaverPreference;
@@ -108,6 +112,13 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
         ContentResolver resolver = getActivity().getContentResolver();
 
         addPreferencesFromResource(R.xml.display_settings);
+
+        mNavButtonsHeight = (ListPreference) findPreference(KEY_NAV_BUTTONS_HEIGHT);
+        mNavButtonsHeight.setOnPreferenceChangeListener(this);
+ 
+ 	int statusNavButtonsHeight = Settings.System.getInt(getActivity().getApplicationContext().getContentResolver(),Settings.System.NAV_BUTTONS_HEIGHT, 48);
+        mNavButtonsHeight.setValue(String.valueOf(statusNavButtonsHeight));
+        mNavButtonsHeight.setSummary(mNavButtonsHeight.getEntry());
 
         mAccelerometer = (CheckBoxPreference) findPreference(KEY_ACCELEROMETER);
         mAccelerometer.setPersistent(false);
@@ -365,6 +376,14 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
         }
         if (KEY_FONT_SIZE.equals(key)) {
             writeFontSizePreference(objValue);
+        }
+
+
+        if (KEY_NAV_BUTTONS_HEIGHT.equals(key)) {
+            int statusNavButtonsHeight = Integer.valueOf((String) objValue);
+            int index = mNavButtonsHeight.findIndexOfValue((String) objValue);
+            Settings.System.putInt(getActivity().getApplicationContext().getContentResolver(),Settings.System.NAV_BUTTONS_HEIGHT,statusNavButtonsHeight);
+            mNavButtonsHeight.setSummary(mNavButtonsHeight.getEntries()[index]);
         }
 
         return true;
